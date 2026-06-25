@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+coverage/
+
+# Environment variables
+.env
+.env*.local
+!.env.example
+
+# TypeScript
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# AI coding assistants (aider, cursor, etc.)
+.aider*
+.cursor/
+
+# Lock file conflicts (pnpm monorepo — only pnpm-lock.yaml)
+package-lock.json
+yarn.lock
+
+# Figma exports / binary design artifacts
+*.make
+*.fig
+
+# Supabase CLI temp files
+supabase/.temp/
+
+# Temporary / one-off scripts
+fix_*.sh

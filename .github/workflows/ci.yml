@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─── Type Check + Lint ────────────────────────────────────────────────────
+  check:
+    name: Type Check & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+  # ─── Migration Safety Check ───────────────────────────────────────────────
+  migrations:
+    name: Migration Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      # Checks that new migration files follow naming convention and are valid SQL.
+      # Does NOT run against the live DB — no secrets needed for this step.
+      - name: Validate migration filenames
+        run: |
+          INVALID=()
+          for f in supabase/migrations/*.sql; do
+            [ -e "$f" ] || continue
+            basename "$f" | grep -qE '^[0-9]{14}_[a-z0-9_]+\.sql$' || INVALID+=("$f")
+          done
+          if [ ${#INVALID[@]} -ne 0 ]; then
+            echo "❌ Invalid migration filename(s) — must be YYYYMMDDHHMMSS_description.sql:"
+            printf '  %s\n' "${INVALID[@]}"
+            exit 1
+          fi
+          echo "✅ All migration filenames valid"
+
+      - name: Lint migrations (SQL)
+        run: supabase db lint
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        # This lints the SQL in migration files for common issues (missing RLS,
+        # security definer in public schema, etc.)
+        # Add SUPABASE_ACCESS_TOKEN to GitHub repo secrets to enable this step.
+        continue-on-error: true
