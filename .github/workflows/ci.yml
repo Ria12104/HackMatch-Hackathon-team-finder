@@ -83,6 +83,11 @@ jobs:
     runs-on: ubuntu-latest
     # TODO: remove continue-on-error once Vitest is set up (see docs/PULL_REQUEST_RULES.md)
     continue-on-error: true
+  # ─── Build Verification ──────────────────────────────────────────────────
+  build:
+    name: Production Build
+    needs: check
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -104,3 +109,8 @@ jobs:
       - name: Run tests
         run: pnpm test
 
+      - name: Build Next.js application
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder-project.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-anon-key"
