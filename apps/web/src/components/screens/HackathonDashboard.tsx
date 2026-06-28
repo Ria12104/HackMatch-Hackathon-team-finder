@@ -17,10 +17,11 @@
 // =============================================================================
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Search, Bookmark, Plus } from 'lucide-react';
 
-import { BottomNav }    from '@/components/screens/BottomNav';
-import type { ScreenProps, Hackathon } from '@/types';
+import { useAppState }  from '@/context/AppContext';
+import type { Hackathon } from '@/types';
 import { mockHackathons } from '@/constants/mockData';
 import { ROSE, DEEP, PEACH, CASHMERE, BG, TEXT, SUBT, BORDER, TAN } from '@/constants/palette';
 
@@ -143,7 +144,9 @@ function ListCard({ h, onClick }: { h: Hackathon; onClick: () => void }) {
 // ---------------------------------------------------------------------------
 // Dashboard Screen
 // ---------------------------------------------------------------------------
-export function HackathonDashboard({ navigate, matches, isAuthenticated }: ScreenProps) {
+export function HackathonDashboard() {
+  const router = useRouter();
+  const { isAuthenticated, matches } = useAppState();
   const [activeFilter, setActiveFilter] = useState<Filter>('All');
 
   const featured  = mockHackathons.find(h => h.isFeatured);
@@ -169,7 +172,7 @@ export function HackathonDashboard({ navigate, matches, isAuthenticated }: Scree
             </button>
             {isAuthenticated ? (
               <button
-                onClick={() => navigate('profile')}
+                onClick={() => router.push('/profile')}
                 className="w-9 h-9 rounded-full overflow-hidden border-2"
                 style={{ borderColor: ROSE, background: CASHMERE }}
               >
@@ -179,7 +182,7 @@ export function HackathonDashboard({ navigate, matches, isAuthenticated }: Scree
               </button>
             ) : (
               <button
-                onClick={() => navigate('auth')}
+                onClick={() => router.push('/login')}
                 className="px-4 py-1.5 rounded-full text-xs font-semibold text-white"
                 style={{ background: DEEP }}
               >
@@ -202,7 +205,7 @@ export function HackathonDashboard({ navigate, matches, isAuthenticated }: Scree
           <div className="px-4 mb-5">
             <FeaturedCard
               h={featured}
-              onClick={() => navigate('hackathon-detail', { hackathon: featured })}
+              onClick={() => router.push(`/hackathons/${featured.id}`)}
             />
           </div>
         )}
@@ -228,7 +231,7 @@ export function HackathonDashboard({ navigate, matches, isAuthenticated }: Scree
         <div className="px-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-serif font-bold text-lg" style={{ color: TEXT }}>Upcoming Hackathons</h3>
-            <button className="text-sm font-medium" style={{ color: ROSE }} onClick={() => navigate('matches')}>
+            <button className="text-sm font-medium" style={{ color: ROSE }} onClick={() => router.push('/hackathons')}>
               View all
             </button>
           </div>
@@ -240,7 +243,7 @@ export function HackathonDashboard({ navigate, matches, isAuthenticated }: Scree
           ) : (
             <div className="flex flex-col gap-2.5">
               {listHacks.map(h => (
-                <ListCard key={h.id} h={h} onClick={() => navigate('hackathon-detail', { hackathon: h })} />
+                <ListCard key={h.id} h={h} onClick={() => router.push(`/hackathons/${h.id}`)} />
               ))}
             </div>
           )}
@@ -250,7 +253,7 @@ export function HackathonDashboard({ navigate, matches, isAuthenticated }: Scree
       {/* ── FAB: Add hackathon (auth only) ── */}
       {isAuthenticated && (
         <button
-          onClick={() => navigate('add-hackathon')}
+          onClick={() => router.push('/hackathons/add')}
           className="absolute right-5 bottom-24 w-11 h-11 rounded-full text-white flex items-center justify-center shadow-lg z-40"
           style={{ background: DEEP }}
         >
@@ -258,7 +261,6 @@ export function HackathonDashboard({ navigate, matches, isAuthenticated }: Scree
         </button>
       )}
 
-      <BottomNav active="dashboard" navigate={navigate} matchCount={matches.length} isAuthenticated={isAuthenticated} />
     </div>
   );
 }

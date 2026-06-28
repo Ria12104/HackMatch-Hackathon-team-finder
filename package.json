@@ -1,25 +1,15 @@
 {
-    "name":  "hackmatch",
-    "private":  true,
-    "version":  "1.0.0",
-    "type":  "module",
-    "scripts":  {
-                    "dev":  "npm run dev --workspace=apps/web",
-                    "build":  "npm run build --workspace=apps/web",
-                    "start":  "npm run start --workspace=apps/web"
-                },
-    "workspaces":  [
-                       "apps/*"
-                   ],
-    "devDependencies":  {
-
-                        },
-    "overrides":  {
-                      "react":  "19.2.7",
-                      "react-dom":  "19.2.7"
-                  },
-    "dependencies":  {
-                         "react":  "19.2.7",
-                         "react-dom":  "19.2.7"
-                     }
+  "name": "hackmatch",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "pnpm --filter @hackmatch/web dev",
+    "build": "pnpm --filter @hackmatch/web build",
+    "start": "pnpm --filter @hackmatch/web start",
+    "lint": "pnpm --filter @hackmatch/web lint",
+    "typecheck": "pnpm --filter @hackmatch/web typecheck"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
 }

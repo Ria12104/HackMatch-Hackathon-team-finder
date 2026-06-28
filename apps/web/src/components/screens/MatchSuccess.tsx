@@ -1,20 +1,29 @@
 'use client';
 
 // =============================================================================
-// Match Success Screen
+// Match Success Overlay
 // =============================================================================
+// Shown inline inside TeammateDiscovery when a mutual match occurs.
+// Not a separate route — it renders as a full-height overlay over the swipe screen.
 // =============================================================================
 
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { MessageCircle, ArrowRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-import type { ScreenProps } from '@/types';
+import type { UserProfile, Match } from '@/types';
 import { ROSE, DEEP, PEACH, CASHMERE, BG, TEXT, SUBT, BORDER } from '@/constants/palette';
 
-export function MatchSuccess({ navigate, matchProfile }: ScreenProps) {
-  const p = matchProfile;
+interface MatchSuccessProps {
+  matchProfile: UserProfile;
+  match: Match;
+  onKeepSwiping: () => void;
+}
+
+export function MatchSuccess({ matchProfile: p, match, onKeepSwiping }: MatchSuccessProps) {
+  const router = useRouter();
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -25,10 +34,8 @@ export function MatchSuccess({ navigate, matchProfile }: ScreenProps) {
     return () => clearTimeout(t);
   }, []);
 
-  if (!p) return null;
-
   return (
-    <div className="h-full flex flex-col items-center justify-center px-6" style={{ background: BG }}>
+    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center px-6" style={{ background: BG }}>
       {/* ── Headline ── */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
@@ -84,14 +91,14 @@ export function MatchSuccess({ navigate, matchProfile }: ScreenProps) {
         className="w-full flex flex-col gap-2.5"
       >
         <button
-          onClick={() => navigate('chat', { matchProfile: p })}
+          onClick={() => router.push(`/matches/${match.id}/chat`)}
           className="w-full py-3.5 rounded-full text-white text-sm font-semibold flex items-center justify-center gap-2"
           style={{ background: DEEP }}
         >
           <MessageCircle size={15} /> Start Chat
         </button>
         <button
-          onClick={() => navigate('discover')}
+          onClick={onKeepSwiping}
           className="w-full py-3 rounded-full text-sm font-medium flex items-center justify-center gap-2"
           style={{ background: 'white', border: `1px solid ${BORDER}`, color: SUBT }}
         >

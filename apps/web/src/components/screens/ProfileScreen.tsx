@@ -15,11 +15,11 @@
 // =============================================================================
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Github, Globe, Linkedin, ToggleLeft, ToggleRight, LogOut, Edit3 } from 'lucide-react';
 
-import { BottomNav }   from '@/components/screens/BottomNav';
+import { useAppState } from '@/context/AppContext';
 import { currentUser } from '@/constants/mockData';
-import type { ScreenProps } from '@/types';
 import { ROSE, DEEP, PEACH, BG, TEXT, SUBT, BORDER } from '@/constants/palette';
 
 // ---------------------------------------------------------------------------
@@ -39,7 +39,9 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 // ---------------------------------------------------------------------------
 // Profile Screen
 // ---------------------------------------------------------------------------
-export function ProfileScreen({ navigate, matches, isAuthenticated, setIsAuthenticated }: ScreenProps) {
+export function ProfileScreen() {
+  const router = useRouter();
+  const { isAuthenticated, setIsAuthenticated, matches } = useAppState();
   // TODO: replace with userService.getMyProfile() when backend is ready
   const u = currentUser;
 
@@ -178,7 +180,7 @@ export function ProfileScreen({ navigate, matches, isAuthenticated, setIsAuthent
         {/* ── Sign out ── */}
         <div className="px-5 py-4">
           <button
-            onClick={() => { setIsAuthenticated(false); navigate('dashboard'); }}
+            onClick={() => { setIsAuthenticated(false); router.push('/'); }}
             className="w-full py-3 rounded-full text-sm font-medium flex items-center justify-center gap-2 border"
             style={{ borderColor: BORDER, color: ROSE, background: 'white' }}
           >
@@ -187,7 +189,6 @@ export function ProfileScreen({ navigate, matches, isAuthenticated, setIsAuthent
         </div>
       </div>
 
-      <BottomNav active="profile" navigate={navigate} matchCount={matches.length} isAuthenticated={isAuthenticated} />
     </div>
   );
 }

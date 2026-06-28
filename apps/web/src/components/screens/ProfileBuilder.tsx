@@ -11,10 +11,13 @@
 // =============================================================================
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, Check } from 'lucide-react';
 
-import type { ScreenProps } from '@/types';
 import { ROSE, DEEP, PEACH, BG, TEXT, SUBT, BORDER } from '@/constants/palette';
+import { mockHackathons } from '@/constants/mockData';
+
+const featuredId = mockHackathons.find(h => h.isFeatured)?.id ?? mockHackathons[0]?.id ?? '1';
 
 // Add new roles and skills here to extend the onboarding options
 const ROLES  = ['Developer', 'Designer', 'Product Manager', 'Data Scientist', 'Other'];
@@ -24,7 +27,8 @@ const SKILLS = [
   'PostgreSQL', 'MongoDB', 'Swift',
 ];
 
-export function ProfileBuilder({ navigate, selectedHackathon }: ScreenProps) {
+export function ProfileBuilder() {
+  const router = useRouter();
   const [name,   setName]   = useState('');
   const [role,   setRole]   = useState('');
   const [skills, setSkills] = useState<string[]>([]);
@@ -37,7 +41,7 @@ export function ProfileBuilder({ navigate, selectedHackathon }: ScreenProps) {
 
   const handleStart = () => {
     // TODO: call userService.updateMyProfile({ name, role, skills }) here
-    navigate('discover', selectedHackathon ? { hackathon: selectedHackathon } : undefined);
+    router.push(`/hackathons/${featuredId}/discover`);
   };
 
   return (
@@ -48,7 +52,7 @@ export function ProfileBuilder({ navigate, selectedHackathon }: ScreenProps) {
         className="flex items-center gap-2 px-4 pt-3 pb-3 shrink-0"
         style={{ borderBottom: `1px solid ${BORDER}` }}
       >
-        <button onClick={() => navigate('auth')} className="p-1" style={{ color: SUBT }}>
+        <button onClick={() => router.push('/login')} className="p-1" style={{ color: SUBT }}>
           <ArrowLeft size={16} />
         </button>
         <div>
@@ -67,12 +71,7 @@ export function ProfileBuilder({ navigate, selectedHackathon }: ScreenProps) {
 
       <div className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-6">
 
-        {/* Hackathon context banner */}
-        {selectedHackathon && (
-          <div className="px-3.5 py-2.5 rounded-xl text-xs leading-relaxed" style={{ background: PEACH, color: DEEP }}>
-            Setting up for <span className="font-serif font-semibold">{selectedHackathon.name}</span>
-          </div>
-        )}
+        {/* Hackathon context banner removed — use URL to pass context */}
 
         {/* Name */}
         <div>

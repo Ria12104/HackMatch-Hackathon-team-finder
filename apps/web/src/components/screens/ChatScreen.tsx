@@ -6,14 +6,16 @@
 // =============================================================================
 
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { ArrowLeft, Send, CheckCheck } from 'lucide-react';
 
-import type { ScreenProps, Message } from '@/types';
+import type { Match, Message } from '@/types';
 import { ROSE, DEEP, PEACH, BG, TEXT, SUBT, BORDER } from '@/constants/palette';
 import { sendMessage, getMockAutoReply } from '@/services/chatService';
 
-export function ChatScreen({ navigate, matchProfile, activeMatch }: ScreenProps) {
+export function ChatScreen({ activeMatch }: { activeMatch: Match }) {
+  const router = useRouter();
   const [msgs,  setMsgs]  = useState<Message[]>([
     { id: '1', text: 'Hey! Really excited to potentially work together.', fromMe: false, time: '2:30 PM' },
     { id: '2', text: 'Same here! Your projects look great — especially the FinTech one.', fromMe: true, time: '2:32 PM' },
@@ -22,7 +24,7 @@ export function ChatScreen({ navigate, matchProfile, activeMatch }: ScreenProps)
   ]);
   const [input, setInput] = useState('');
   const endRef = useRef<HTMLDivElement>(null);
-  const p = matchProfile;
+  const p = activeMatch?.profile ?? null;
 
   // Auto-scroll to latest message
   useEffect(() => {
@@ -52,7 +54,7 @@ export function ChatScreen({ navigate, matchProfile, activeMatch }: ScreenProps)
 
       {/* ── Header ── */}
       <div className="flex items-center gap-2 px-3 py-3 shrink-0 bg-white" style={{ borderBottom: `1px solid ${BORDER}` }}>
-        <button onClick={() => navigate('matches')} className="p-1" style={{ color: SUBT }}>
+        <button onClick={() => router.push('/matches')} className="p-1" style={{ color: SUBT }}>
           <ArrowLeft size={17} />
         </button>
         <div className="flex-1">
@@ -60,7 +62,7 @@ export function ChatScreen({ navigate, matchProfile, activeMatch }: ScreenProps)
           <p className="text-[10px]" style={{ color: ROSE }}>{p.role} · Online</p>
         </div>
         <button
-          onClick={() => navigate('team-confirm', { matchProfile: p, activeMatch: activeMatch ?? undefined })}
+          onClick={() => router.push(`/matches/${activeMatch?.id}/team`)}
           className="px-3 py-1.5 rounded-full text-[11px] font-semibold border-2"
           style={{ borderColor: DEEP, color: DEEP, background: 'transparent' }}
         >

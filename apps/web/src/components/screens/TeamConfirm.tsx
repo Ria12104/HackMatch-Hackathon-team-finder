@@ -13,17 +13,19 @@
 // =============================================================================
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { ArrowLeft, Check, Users } from 'lucide-react';
 
 import { currentUser } from '@/constants/mockData';
-import type { ScreenProps } from '@/types';
+import type { Match } from '@/types';
 import { ROSE, DEEP, PEACH, BG, TEXT, SUBT, BORDER } from '@/constants/palette';
 
-export function TeamConfirm({ navigate, matchProfile, activeMatch }: ScreenProps) {
+export function TeamConfirm({ activeMatch }: { activeMatch: Match }) {
+  const router = useRouter();
   const [teamName,  setTeamName]  = useState('');
   const [confirmed, setConfirmed] = useState(false);
-  const p = matchProfile;
+  const p = activeMatch?.profile ?? null;
 
   if (!p) return null;
 
@@ -51,7 +53,7 @@ export function TeamConfirm({ navigate, matchProfile, activeMatch }: ScreenProps
           </p>
           <p className="text-[11px] mb-8" style={{ color: ROSE }}>Good luck building something great.</p>
           <button
-            onClick={() => navigate('dashboard')}
+            onClick={() => router.push('/')}
             className="px-8 py-3 rounded-full text-white text-sm font-semibold"
             style={{ background: DEEP }}
           >
@@ -68,7 +70,7 @@ export function TeamConfirm({ navigate, matchProfile, activeMatch }: ScreenProps
       {/* ── Header ── */}
       <div className="flex items-center gap-2 px-3 py-3" style={{ borderBottom: `1px solid ${BORDER}` }}>
         <button
-          onClick={() => navigate('chat', { matchProfile: p, activeMatch: activeMatch ?? undefined })}
+          onClick={() => router.push(`/matches/${activeMatch?.id}/chat`)}
           className="p-1"
           style={{ color: SUBT }}
         >

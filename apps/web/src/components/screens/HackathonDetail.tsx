@@ -7,20 +7,24 @@
 // Detailed view for a single hackathon event.
 // =============================================================================
 
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, Wifi, MapPin, Calendar, Users, Trophy, Clock, CheckCircle2, ExternalLink } from 'lucide-react';
 
-import type { ScreenProps } from '@/types';
+import { useAppState } from '@/context/AppContext';
+import type { Hackathon } from '@/types';
 import { ROSE, DEEP, PEACH, BG, TEXT, SUBT, BORDER } from '@/constants/palette';
 
-export function HackathonDetail({ navigate, selectedHackathon: h, isAuthenticated }: ScreenProps) {
+export function HackathonDetail({ hackathon: h }: { hackathon: Hackathon }) {
+  const router = useRouter();
+  const { isAuthenticated } = useAppState();
   if (!h) return null;
 
   const ModeIcon = h.mode === 'Online' ? Wifi : MapPin;
 
   const handleFindTeam = () =>
     isAuthenticated
-      ? navigate('discover', { hackathon: h })
-      : navigate('auth', { hackathon: h });
+      ? router.push(`/hackathons/${h.id}/discover`)
+      : router.push('/login');
 
   return (
     <div className="h-full overflow-y-auto" style={{ background: BG }}>
@@ -29,7 +33,7 @@ export function HackathonDetail({ navigate, selectedHackathon: h, isAuthenticate
         className="sticky top-0 z-10 flex items-center gap-2 px-3 py-3"
         style={{ background: BG, borderBottom: `1px solid ${BORDER}` }}
       >
-        <button onClick={() => navigate('dashboard')} className="p-1" style={{ color: SUBT }}>
+        <button onClick={() => router.push('/')} className="p-1" style={{ color: SUBT }}>
           <ArrowLeft size={18} />
         </button>
         <p className="font-serif font-semibold text-[15px] truncate" style={{ color: TEXT }}>{h.name}</p>

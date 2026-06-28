@@ -17,11 +17,13 @@
 // =============================================================================
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, useMotionValue, useTransform, animate } from 'motion/react';
 import { MapPin, Code2, Link2, Globe, Star, ChevronsLeft, ChevronsRight, Compass } from 'lucide-react';
 
-import { BottomNav } from '@/components/screens/BottomNav';
-import type { ScreenProps, UserProfile, Match } from '@/types';
+import { useAppState } from '@/context/AppContext';
+import { MatchSuccess } from '@/components/screens/MatchSuccess';
+import type { UserProfile, Match, Hackathon } from '@/types';
 import { discoverProfiles } from '@/constants/mockData';
 import { swipeOnProfile } from '@/services/matchService';
 import { ROSE, DEEP, PEACH, CASHMERE, BG, TEXT, SUBT, BORDER } from '@/constants/palette';
@@ -180,8 +182,11 @@ function SwipeCard({ profile: p, onLike, onSkip, isTop, stackIndex }: SwipeCardP
 // ---------------------------------------------------------------------------
 // TeammateDiscovery Screen
 // ---------------------------------------------------------------------------
-export function TeammateDiscovery({ navigate, selectedHackathon, matches, setMatches, isAuthenticated }: ScreenProps) {
-  const [profiles, setProfiles] = useState<UserProfile[]>([...discoverProfiles]);
+export function TeammateDiscovery({ hackathon: selectedHackathon }: { hackathon: Hackathon }) {
+  const router = useRouter();
+  const { matches, setMatches } = useAppState();
+  const [profiles, setProfiles]     = useState<UserProfile[]>([...discoverProfiles]);
+  const [currentMatch, setCurrentMatch] = useState<Match | null>(null);
 
   const total     = discoverProfiles.length;
   const remaining = profiles.length;
@@ -204,8 +209,9 @@ export function TeammateDiscovery({ navigate, selectedHackathon, matches, setMat
         hackathon: selectedHackathon?.name ?? 'EcoHack 2024',
         matchDate: 'Just now',
       };
-      setMatches([newMatch, ...matches]);
-      setTimeout(() => navigate('match-success', { matchProfile: current }), 300);
+      const updated = [newMatch, ...matches];
+      setMatches(updated);
+      setTimeout(() => setCurrentMatch(newMatch), 300); // show overlay after card animates off
     }
   };
 
@@ -216,7 +222,16 @@ export function TeammateDiscovery({ navigate, selectedHackathon, matches, setMat
   };
 
   return (
-    <div className="h-full flex flex-col" style={{ background: BG }}>
+    <div className="h-full flex flex-col relative" style={{ background: BG }}>
+
+      {/* ── Match Success Overlay ── */}
+      {currentMatch && (
+        <MatchSuccess
+          matchProfile={currentMatch.profile}
+          match={currentMatch}
+          onKeepSwiping={() => setCurrentMatch(null)}
+        />
+      )}
 
       {/* ── Header ── */}
       <div className="flex items-center justify-between px-5 py-4 shrink-0">
@@ -304,7 +319,6 @@ export function TeammateDiscovery({ navigate, selectedHackathon, matches, setMat
         </div>
       )}
 
-      <BottomNav active="discover" navigate={navigate} matchCount={matches.length} isAuthenticated={isAuthenticated} />
     </div>
   );
 }

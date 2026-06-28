@@ -8,42 +8,6 @@
 // then create its service file in src/services/.
 // =============================================================================
 
-// ---------------------------------------------------------------------------
-// Navigation
-// ---------------------------------------------------------------------------
-
-/** Every screen name in the app. Add new screens here first. */
-export type Screen =
-  | 'splash'
-  | 'auth'
-  | 'profile-builder'
-  | 'dashboard'
-  | 'add-hackathon'
-  | 'hackathon-detail'
-  | 'discover'
-  | 'match-success'
-  | 'matches'
-  | 'contact-reveal'
-  | 'chat'
-  | 'profile'
-  | 'team-confirm';
-
-/**
- * The navigate function passed to every screen.
- * Call navigate('screen-name', { optionalPayload }) to change screens.
- */
-export type Navigate = (
-  screen: Screen,
-  opts?: {
-    hackathon?: Hackathon;
-    matchProfile?: UserProfile;
-    activeMatch?: Match;
-  }
-) => void;
-
-// ---------------------------------------------------------------------------
-// Domain Models
-// ---------------------------------------------------------------------------
 
 /**
  * A hackathon event.
@@ -118,24 +82,3 @@ export interface Message {
   time: string;
 }
 
-// ---------------------------------------------------------------------------
-// Screen Props
-// ---------------------------------------------------------------------------
-
-/**
- * Props passed to every top-level screen component.
- * All shared state is threaded through here.
- *
- * When the backend is live, most of these will be replaced by React Query
- * hooks or Context, but for now they are explicit props for clarity.
- */
-export interface ScreenProps {
-  navigate: Navigate;
-  isAuthenticated: boolean;
-  setIsAuthenticated: (v: boolean) => void;
-  selectedHackathon?: Hackathon | null;
-  matchProfile?: UserProfile | null;
-  activeMatch?: Match | null;
-  matches: Match[];
-  setMatches: (m: Match[]) => void;
-}

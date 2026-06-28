@@ -14,13 +14,19 @@
 // =============================================================================
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 
-import type { ScreenProps } from '@/types';
+import { useAppState } from '@/context/AppContext';
+import { mockHackathons } from '@/constants/mockData';
 import { ROSE, DEEP, PEACH, BG, TEXT, SUBT, BORDER } from '@/constants/palette';
 import { login, signup } from '@/services/authService';
 
-export function AuthScreen({ navigate, setIsAuthenticated, selectedHackathon }: ScreenProps) {
+const featuredId = mockHackathons.find(h => h.isFeatured)?.id ?? mockHackathons[0]?.id ?? '1';
+
+export function AuthScreen() {
+  const router = useRouter();
+  const { setIsAuthenticated } = useAppState();
   const [tab,      setTab]      = useState<'signup' | 'login'>('signup');
   const [showPass, setShowPass] = useState(false);
   const [loading,  setLoading]  = useState(false);
@@ -45,7 +51,7 @@ export function AuthScreen({ navigate, setIsAuthenticated, selectedHackathon }: 
 
       if (result.success) {
         setIsAuthenticated(true);
-        navigate('profile-builder', selectedHackathon ? { hackathon: selectedHackathon } : undefined);
+        router.push('/profile/setup'); // collect name, role, skills before entering discover
       } else {
         setError(result.error ?? 'Something went wrong. Please try again.');
       }
@@ -59,7 +65,7 @@ export function AuthScreen({ navigate, setIsAuthenticated, selectedHackathon }: 
   return (
     <div className="h-full overflow-y-auto flex flex-col" style={{ background: BG }}>
       <button
-        onClick={() => navigate('dashboard')}
+        onClick={() => router.push('/')}
         className="flex items-center gap-1.5 px-4 pt-4 pb-2 text-sm font-medium"
         style={{ color: SUBT }}
       >
@@ -67,13 +73,7 @@ export function AuthScreen({ navigate, setIsAuthenticated, selectedHackathon }: 
       </button>
 
       <div className="px-6 pb-8">
-        {/* Context banner — shown when arriving from a hackathon */}
-        {selectedHackathon && (
-          <div className="mb-5 px-3.5 py-2.5 rounded-xl text-xs leading-relaxed" style={{ background: PEACH, color: DEEP }}>
-            Sign in to find teammates for{' '}
-            <span className="font-serif font-semibold">{selectedHackathon.name}</span>
-          </div>
-        )}
+        {/* Context banner removed — login flow no longer needs hackathon ctx in URL */}
 
         <h2 className="font-serif font-bold text-2xl mb-1" style={{ color: TEXT }}>
           {tab === 'signup' ? 'Create account' : 'Welcome back'}

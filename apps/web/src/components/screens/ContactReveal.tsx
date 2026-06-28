@@ -7,11 +7,13 @@
 
 import { ArrowLeft, Mail, Github, Linkedin, Globe, Lock, Copy, Check } from 'lucide-react';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-import type { ScreenProps } from '@/types';
+import type { Match } from '@/types';
 import { ROSE, DEEP, PEACH, BG, TEXT, SUBT, BORDER } from '@/constants/palette';
 
-export function ContactReveal({ navigate, activeMatch }: ScreenProps) {
+export function ContactReveal({ activeMatch }: { activeMatch: Match }) {
+  const router = useRouter();
   const p = activeMatch?.profile;
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -38,7 +40,7 @@ export function ContactReveal({ navigate, activeMatch }: ScreenProps) {
         className="sticky top-0 z-10 flex items-center gap-2 px-3 py-3"
         style={{ background: BG, borderBottom: `1px solid ${BORDER}` }}
       >
-        <button onClick={() => navigate('matches')} className="p-1" style={{ color: SUBT }}>
+        <button onClick={() => router.push('/matches')} className="p-1" style={{ color: SUBT }}>
           <ArrowLeft size={16} />
         </button>
         <p className="font-serif font-semibold text-[15px]" style={{ color: TEXT }}>Contact Details</p>
@@ -105,7 +107,7 @@ export function ContactReveal({ navigate, activeMatch }: ScreenProps) {
         </div>
 
         <button
-          onClick={() => navigate('chat', { matchProfile: p })}
+          onClick={() => router.push(`/matches/${activeMatch?.id}/chat`)}
           className="w-full mt-5 py-3.5 rounded-full text-white text-sm font-semibold"
           style={{ background: DEEP }}
         >

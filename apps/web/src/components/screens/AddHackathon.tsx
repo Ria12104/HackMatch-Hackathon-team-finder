@@ -15,9 +15,9 @@
 // =============================================================================
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, Calendar, Globe, Link, AlignLeft } from 'lucide-react';
 
-import type { ScreenProps } from '@/types';
 import { ROSE, DEEP, PEACH, BG, TEXT, SUBT, BORDER } from '@/constants/palette';
 import { createHackathon } from '@/services/hackathonService';
 
@@ -25,7 +25,8 @@ type Mode = 'Online' | 'Offline' | 'Hybrid';
 const MODES: Mode[] = ['Online', 'Offline', 'Hybrid'];
 const TEAM_SIZES = ['1', '1-2', '2-4', '2-5', '3-6'];
 
-export function AddHackathon({ navigate }: ScreenProps) {
+export function AddHackathon() {
+  const router = useRouter();
   const [name,        setName]        = useState('');
   const [description, setDescription] = useState('');
   const [regLink,     setRegLink]     = useState('');
@@ -45,7 +46,7 @@ export function AddHackathon({ navigate }: ScreenProps) {
     try {
       // createHackathon is a stub — replace body in hackathonService.ts
       await createHackathon({ name, description, registrationLink: regLink, startDate, endDate, teamSize, mode });
-      navigate('dashboard');
+      router.push('/');
     } catch {
       // TODO: show error toast when backend returns an error
     } finally {
@@ -60,7 +61,7 @@ export function AddHackathon({ navigate }: ScreenProps) {
         className="sticky top-0 z-10 flex items-center gap-2 px-3 py-3"
         style={{ background: BG, borderBottom: `1px solid ${BORDER}` }}
       >
-        <button onClick={() => navigate('dashboard')} className="p-1" style={{ color: SUBT }}>
+        <button onClick={() => router.push('/')} className="p-1" style={{ color: SUBT }}>
           <ArrowLeft size={16} />
         </button>
         <p className="font-serif font-semibold text-[15px]" style={{ color: TEXT }}>Add Hackathon</p>

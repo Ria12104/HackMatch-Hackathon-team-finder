@@ -5,10 +5,11 @@
 // =============================================================================
 // =============================================================================
 
+import { useRouter } from 'next/navigation';
 import { MessageCircle, Eye, Heart } from 'lucide-react';
 
-import { BottomNav } from '@/components/screens/BottomNav';
-import type { ScreenProps, Match } from '@/types';
+import { useAppState } from '@/context/AppContext';
+import type { Match } from '@/types';
 import { ROSE, DEEP, PEACH, BG, TEXT, SUBT, BORDER } from '@/constants/palette';
 
 // ---------------------------------------------------------------------------
@@ -61,7 +62,9 @@ function MatchRow({ m, onChat, onContact }: { m: Match; onChat: () => void; onCo
 // ---------------------------------------------------------------------------
 // Matches List Screen
 // ---------------------------------------------------------------------------
-export function MatchesList({ navigate, matches, isAuthenticated }: ScreenProps) {
+export function MatchesList() {
+  const router = useRouter();
+  const { isAuthenticated, matches } = useAppState();
   return (
     <div className="h-full flex flex-col relative" style={{ background: BG }}>
       <div className="flex-1 overflow-y-auto pb-[72px]">
@@ -83,7 +86,7 @@ export function MatchesList({ navigate, matches, isAuthenticated }: ScreenProps)
               Start swiping to find teammates.
             </p>
             <button
-              onClick={() => navigate('discover')}
+              onClick={() => router.push('/hackathons')}
               className="mt-2 px-6 py-2.5 rounded-full text-white text-sm font-semibold"
               style={{ background: DEEP }}
             >
@@ -96,8 +99,8 @@ export function MatchesList({ navigate, matches, isAuthenticated }: ScreenProps)
               <MatchRow
                 key={m.id}
                 m={m}
-                onChat={()    => navigate('chat',          { matchProfile: m.profile, activeMatch: m })}
-                onContact={() => navigate('contact-reveal', { activeMatch: m })}
+                onChat={()    => router.push(`/matches/${m.id}/chat`)}
+                onContact={() => router.push(`/matches/${m.id}/contact`)}
               />
             ))}
           </div>
@@ -105,7 +108,6 @@ export function MatchesList({ navigate, matches, isAuthenticated }: ScreenProps)
       </div>
 
       {/* Pass 0 for badge — already on the Matches screen so badge not needed */}
-      <BottomNav active="matches" navigate={navigate} matchCount={0} isAuthenticated={isAuthenticated} />
     </div>
   );
 }
