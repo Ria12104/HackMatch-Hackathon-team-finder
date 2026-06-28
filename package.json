@@ -1,15 +1,25 @@
 {
-  "name": "pairup",
-  "private": true,
-  "packageManager": "pnpm@9.15.4",
-  "scripts": {
-    "dev": "pnpm --filter @pairup/web dev",
-    "build": "pnpm --filter @pairup/web build",
-    "start": "pnpm --filter @pairup/web start",
-    "lint": "pnpm --filter @pairup/web lint",
-    "typecheck": "pnpm --filter @pairup/web typecheck"
-  },
-  "devDependencies": {
-    "typescript": "^5.8.3"
-  }
+    "name":  "hackmatch",
+    "private":  true,
+    "version":  "1.0.0",
+    "type":  "module",
+    "scripts":  {
+                    "dev":  "npm run dev --workspace=apps/web",
+                    "build":  "npm run build --workspace=apps/web",
+                    "start":  "npm run start --workspace=apps/web"
+                },
+    "workspaces":  [
+                       "apps/*"
+                   ],
+    "devDependencies":  {
+
+                        },
+    "overrides":  {
+                      "react":  "19.2.7",
+                      "react-dom":  "19.2.7"
+                  },
+    "dependencies":  {
+                         "react":  "19.2.7",
+                         "react-dom":  "19.2.7"
+                     }
 }
