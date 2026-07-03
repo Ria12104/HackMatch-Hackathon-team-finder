@@ -1,7 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typedRoutes: true,
-  poweredByHeader: false
+  poweredByHeader: false,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  // images: {
+  //   remotePatterns: [
+  //     { protocol: 'https', hostname: 'your-cdn.example.com' },
+  //   ],
+  // },
 };
 
 export default nextConfig;

@@ -1,13 +1,13 @@
 {
-  "name": "pairup",
+  "name": "hackmatch",
   "private": true,
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "dev": "pnpm --filter @pairup/web dev",
-    "build": "pnpm --filter @pairup/web build",
-    "start": "pnpm --filter @pairup/web start",
-    "lint": "pnpm --filter @pairup/web lint",
-    "typecheck": "pnpm --filter @pairup/web typecheck"
+    "dev": "pnpm --filter @hackmatch/web dev",
+    "build": "pnpm --filter @hackmatch/web build",
+    "start": "pnpm --filter @hackmatch/web start",
+    "lint": "pnpm --filter @hackmatch/web lint",
+    "typecheck": "pnpm --filter @hackmatch/web typecheck"
   },
   "devDependencies": {
     "typescript": "^5.8.3"

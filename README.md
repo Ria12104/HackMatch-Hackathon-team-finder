@@ -1,31 +1,26 @@
-# PairUp
+# HackMatch
 
-PairUp is a mobile-first PWA for MUJ students to find hackathon teammates before deadline panic sets in.
+A hackathon team finder platform designed to help participants match, form teams, and collaborate.
 
-## V1 Direction
+Original Design: [Figma Link](https://www.figma.com/design/IbiUZ5Xoo76NAbDbGbOw2f/HackMatch)
 
-- Platform: mobile-first web/PWA first, native app later if needed.
-- Auth: Google OAuth through Supabase (admin allowlist for admin accounts).
-- Data: Supabase Postgres with seeded hackathons for the first test build.
-- Audience: MUJ students only for V1.
-- Core loop: public hackathon feed -> login to register interest -> profile tier 1 -> swipe-style teammate discovery -> match/chat.
-- Admin: Supabase Google auth with an email allowlist.
+## Project Structure
 
-## Project Layout
+- `apps/web/`: Next.js frontend application.
+  - `src/components/screens/`: Frontend interactive screens (Auth, Teammate Discovery, Hackathon Dashboard, Chat, etc.).
+  - `src/services/`: Mock data service stubs (Auth, Chat, Hackathons, Matches, Users).
+  - `BACKEND.md`: Supabase integration guide for connecting a real backend database and authentication.
 
-```txt
-apps/
-  web/        PairUp PWA
-packages/
-  shared/     shared domain types and design tokens
-```
+## Running the Project
 
-## Getting Started
+1. Install dependencies from the root directory:
+   ```bash
+   npm install
+   ```
 
-```bash
-pnpm install
-cp .env.example apps/web/.env.local
-pnpm dev
-```
+2. Start the local development server:
+   ```bash
+   npm run dev
+   ```
 
-The first scaffold runs on mock data. Supabase integration is next — see [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for the database setup guide.
+The application will be available at `http://localhost:3000`.
