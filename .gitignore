@@ -24,7 +24,16 @@ Thumbs.db
 
 # AI coding assistants (aider, cursor, etc.)
 .aider*
+.aider.tags.cache.v4/
 .cursor/
+.claude/
+
+# Agent skills / internal tooling (not for teammates)
+.agents/
+skills-lock.json
+
+# Accidental CLI flag files (e.g. --extra-params=...)
+--extra-params*
 
 # Lock file conflicts (pnpm monorepo — only pnpm-lock.yaml)
 package-lock.json
@@ -39,3 +48,21 @@ supabase/.temp/
 
 # Temporary / one-off scripts
 fix_*.sh
+/scripts/delete-user.sh
+#p1 files
+docs/P1_PROJECT_CONTEXT.md
+supabase/.branches/
+docs/team_division.md
+HANDOFF.md
+docs/.my.txt
+
+# Private audit/session notes
+context.md
+docs/*_AUDIT.md
+docs/*_STATUS.md
+
+# Local Supabase helper scripts
+scripts/supabase-start.sh
+
+# Empty/local scratch directories
+supabase/snippets/

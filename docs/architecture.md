@@ -6,7 +6,7 @@
 - Supabase for Postgres, storage, realtime, and admin auth
 - 2Factor for user phone OTP
 - Plain CSS with design tokens from `DESIGN.md`
-- Mock data until Supabase schema and seed scripts are added
+- Local seed data for hackathon listings until event ingestion is connected to Supabase
 
 ## Profile Tiers
 

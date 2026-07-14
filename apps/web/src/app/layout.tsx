@@ -3,9 +3,9 @@ import "./globals.css";
 import { PwaRegister } from "@/components/pwa-register";
 
 export const metadata: Metadata = {
-  title: "HackMatch",
+  title: "PairUp",
   description: "Find your hackathon team before the deadline panic.",
-  applicationName: "HackMatch",
+  applicationName: "PairUp",
   manifest: "/manifest.webmanifest"
 };
 
