@@ -1,4 +1,4 @@
--- PairUp P1 foundation schema.
+-- PairUp foundation schema.
 -- Creates the initial Supabase Postgres contract for auth, profiles,
 -- hackathon discovery, matching, chat, credits, admin audit, and safety.
 
@@ -96,7 +96,7 @@ create table public.profiles (
   constraint profiles_primary_role_length check (primary_role is null or char_length(primary_role) between 2 and 80),
   constraint profiles_availability_length check (availability is null or char_length(availability) <= 160),
   constraint profiles_bio_length check (bio is null or char_length(bio) <= 500),
-  constraint profiles_daily_credits_range check (daily_credits between 0 and 20),
+  constraint profiles_daily_credits_range check (daily_credits between 0 and 50),
   constraint profiles_profile_score_nonnegative check (profile_score >= 0),
   constraint profiles_streak_count_nonnegative check (streak_count >= 0),
   constraint profiles_projects_array check (jsonb_typeof(projects) = 'array'),
@@ -275,8 +275,8 @@ create table public.credit_log (
   idempotency_key text,
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
-  constraint credit_log_credits_before_range check (credits_before between 0 and 20),
-  constraint credit_log_credits_after_range check (credits_after between 0 and 20),
+  constraint credit_log_credits_before_range check (credits_before between 0 and 50),
+  constraint credit_log_credits_after_range check (credits_after between 0 and 50),
   constraint credit_log_amount_nonzero check (amount <> 0),
   constraint credit_log_idempotency_key_length check (idempotency_key is null or char_length(idempotency_key) between 8 and 160),
   constraint credit_log_metadata_object check (jsonb_typeof(metadata) = 'object')
@@ -378,10 +378,10 @@ create index rate_limits_blocked_until_idx on public.rate_limits (blocked_until)
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
-set search_path = public
+set search_path = ''
 as $$
 begin
-  new.updated_at = now();
+  new.updated_at = pg_catalog.now();
   return new;
 end;
 $$;
@@ -470,7 +470,7 @@ create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer
-set search_path = public, auth
+set search_path = ''
 as $$
 begin
   insert into public.profiles (id, display_name, email, avatar_url)
@@ -481,9 +481,9 @@ begin
     nullif(new.raw_user_meta_data ->> 'avatar_url', '')
   )
   on conflict (id) do update
-    set email = excluded.email,
+    set email = coalesce(public.profiles.email, excluded.email),
         avatar_url = coalesce(public.profiles.avatar_url, excluded.avatar_url),
-        updated_at = now();
+        updated_at = pg_catalog.now();
 
   return new;
 end;
@@ -495,6 +495,51 @@ grant execute on function public.handle_new_user() to service_role;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- Column immutability guards.
+-- Postgres RLS (USING / WITH CHECK) cannot reference OLD/NEW, so we enforce
+-- "these columns may never change on UPDATE" with BEFORE UPDATE triggers.
+-- This is what actually stops a user from rewriting a received message's
+-- content (or an invite's identity fields) while marking it read / accepting it.
+
+create or replace function public.enforce_message_immutable_fields()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if new.content is distinct from old.content
+     or new.sender_id is distinct from old.sender_id
+     or new.match_id is distinct from old.match_id then
+    raise exception 'messages.content, sender_id and match_id are immutable';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger messages_immutable_fields
+  before update on public.messages
+  for each row execute function public.enforce_message_immutable_fields();
+
+create or replace function public.enforce_invite_immutable_fields()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if new.inviter_id is distinct from old.inviter_id
+     or new.code is distinct from old.code
+     or new.channel is distinct from old.channel
+     or new.hackathon_id is distinct from old.hackathon_id then
+    raise exception 'invites.inviter_id, code, channel and hackathon_id are immutable';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger invites_immutable_fields
+  before update on public.invites
+  for each row execute function public.enforce_invite_immutable_fields();
 
 alter table public.profiles enable row level security;
 alter table public.hackathons enable row level security;
@@ -709,7 +754,7 @@ create policy "Members can update own membership"
     or (select private.is_team_creator(team_members.team_id, (select auth.uid())))
   )
   with check (
-    user_id = (select auth.uid())
+    (user_id = (select auth.uid()) and status = 'accepted' and (select private.is_team_creator(team_members.team_id, (select auth.uid()))) is false)
     or (select private.is_admin())
     or (select private.is_team_creator(team_members.team_id, (select auth.uid())))
   );
@@ -756,7 +801,12 @@ create policy "Users can mark own match messages read"
     )
   )
   with check (
-    exists (
+    -- Row must belong to one of the caller's matches. Field immutability
+    -- (content / sender_id / match_id) is enforced by the
+    -- messages_immutable_fields BEFORE UPDATE trigger, since RLS cannot
+    -- reference OLD to compare against the pre-update row.
+    read_at is not null
+    and exists (
       select 1
       from public.matches m
       where m.id = messages.match_id
@@ -777,8 +827,19 @@ create policy "Users can create own invites"
 create policy "Users can accept available invites"
   on public.invites for update
   to authenticated
-  using (accepted_by is null or accepted_by = (select auth.uid()) or inviter_id = (select auth.uid()))
-  with check (accepted_by = (select auth.uid()) or inviter_id = (select auth.uid()));
+  using (
+    (accepted_by is null and inviter_id <> (select auth.uid()))
+    or (accepted_by = (select auth.uid()))
+  )
+  with check (
+    -- Caller may only claim the invite for themselves. Identity fields
+    -- (inviter_id / code / channel / hackathon_id) are held immutable by the
+    -- invites_immutable_fields BEFORE UPDATE trigger. bonus_awarded is left
+    -- to the service-role invite-reward flow, not settable here.
+    accepted_by = (select auth.uid())
+    and accepted_at is not null
+    and bonus_awarded = false
+  );
 
 create policy "Users can view reports they filed"
   on public.reports for select
@@ -920,7 +981,7 @@ on conflict (slug) do update
       looking_count = excluded.looking_count,
       teams_forming_count = excluded.teams_forming_count,
       roles_wanted = excluded.roles_wanted,
-      updated_at = now();
+      updated_at = pg_catalog.now();
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values
@@ -930,6 +991,11 @@ on conflict (id) do update
   set public = excluded.public,
       file_size_limit = excluded.file_size_limit,
       allowed_mime_types = excluded.allowed_mime_types;
+
+create policy "Public can view avatars"
+  on storage.objects for select
+  to anon, authenticated
+  using (bucket_id = 'avatars');
 
 create policy "Users can upload own avatar"
   on storage.objects for insert

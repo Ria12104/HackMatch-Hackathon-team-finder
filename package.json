@@ -7,7 +7,8 @@
     "build": "pnpm --filter @pairup/web build",
     "start": "pnpm --filter @pairup/web start",
     "lint": "pnpm --filter @pairup/web lint",
-    "typecheck": "pnpm --filter @pairup/web typecheck"
+    "typecheck": "pnpm --filter @pairup/web typecheck",
+    "test": "pnpm --filter @pairup/web test"
   },
   "devDependencies": {
     "typescript": "^5.8.3"

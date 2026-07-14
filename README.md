@@ -28,4 +28,4 @@ cp .env.example apps/web/.env.local
 pnpm dev
 ```
 
-The first scaffold runs on mock data. Supabase integration is next — see [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for the database setup guide.
+The app currently uses local mock hackathon data plus Supabase auth/profile flows. See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for database setup and migration workflow.

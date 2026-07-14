@@ -20,14 +20,24 @@ export default async function HackathonDetailPage({
   const tags =
     hackathon.rolesWanted.slice(0, 3).map((r) => r.role);
 
+  const teamSizeMin = hackathon.teamSizeMin ?? 1;
+  const teamSizeMax = hackathon.teamSizeMax ?? teamSizeMin;
+  const registrationDeadlineText = hackathon.registrationDeadline
+    ? new Date(hackathon.registrationDeadline).toLocaleDateString("en-IN", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : "TBA";
+
   const rules = [
-    `Teams of ${hackathon.teamSizeMin}–${hackathon.teamSizeMax}`,
+    `Teams of ${teamSizeMin}–${teamSizeMax}`,
     "All code written during event",
     "Open to all students",
     "No pre-existing projects",
   ];
 
-  const prizeText = hackathon.teamSizeMax * 10000;
+  const prizeText = teamSizeMax * 10000;
 
   return (
     <>
@@ -69,7 +79,7 @@ export default async function HackathonDetailPage({
           </div>
           <div className="detail-meta-pill">
             <Users size={16} />
-            {hackathon.teamSizeMin}–{hackathon.teamSizeMax} members
+            {teamSizeMin}–{teamSizeMax} members
           </div>
           <div className="detail-meta-pill">
             <DollarSign size={16} />
@@ -83,11 +93,7 @@ export default async function HackathonDetailPage({
           <div>
             <div className="reg-label">Registration Deadline</div>
             <div className="reg-date">
-              {new Date(hackathon.registrationDeadline).toLocaleDateString("en-IN", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
+              {registrationDeadlineText}
             </div>
           </div>
         </div>
@@ -114,7 +120,7 @@ export default async function HackathonDetailPage({
 
       {/* Actions */}
       <div className="detail-actions" style={{ marginTop: 24 }}>
-        <Link href="/login" className="looking-btn">
+        <Link href={`/discover/${slug}`} className="looking-btn">
           Looking For Team →
         </Link>
         <a

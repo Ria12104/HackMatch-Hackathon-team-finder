@@ -1,4 +1,4 @@
-# Contributing to HackMatch
+# Contributing to PairUp
 
 This guide covers the git workflow, database migration rules, and PR process for the team.
 
@@ -75,14 +75,14 @@ Since we're on the Supabase Free plan, **each developer runs their own personal 
 
 The shared project (`iwslmnmmacuudvdbeybo.supabase.co`) is **staging only**.
 - Only the project lead pushes migrations to staging.
-- Never run `supabase db push` against the shared project ref unless you are P1 or the lead.
+- Never run `supabase db push` against the shared project ref unless you are the project lead.
 
 ---
 
 ## Database Migration Rules
 
 > [!IMPORTANT]
-> **Person 1 (P1) owns `supabase/migrations/`.** All schema changes must go through P1 or be reviewed by P1 before merging to `develop`.
+> All schema changes in `supabase/migrations/` must be reviewed by the backend owner before merging to `develop`.
 
 ### Always use the CLI to create migration files
 
